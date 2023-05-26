@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "WebUIRepoName",
+    "ParameterValue": "webui"
+  },
+  {
+    "ParameterKey": "WebAPIRepoName",
+    "ParameterValue": "webapi"
+  }
+]

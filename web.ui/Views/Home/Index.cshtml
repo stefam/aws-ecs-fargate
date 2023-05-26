@@ -1,0 +1,35 @@
+﻿@model IEnumerable<WeatherForecast>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h4>Weather data fetched from web api container on the task</h4>
+</div>
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>ºC</th>
+            <th>ºF</th>
+            <th>Summary</th>
+        </tr>
+    </thead>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Date.ToString("yyy-MM-dd")</td>
+            <td>@item.TemperatureC</td>
+            <td>@item.TemperatureF</td>
+            <td>@item.Summary</td>
+        </tr>
+    }
+</table>
+
+<br />
+
+<div class="text-center">
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>

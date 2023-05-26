@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "AwsExpert"
+  },
+  {
+    "ParameterKey": "WebUIContainerName",
+    "ParameterValue": "webui"
+  },
+  {
+    "ParameterKey": "WebUIImage",
+    "ParameterValue": "webui:latest"
+  },
+  {
+    "ParameterKey": "WebUIContainerPort",
+    "ParameterValue": "80"
+  },
+  {
+    "ParameterKey": "WebAPIImage",
+    "ParameterValue": "webapi:latest"
+  },
+  {
+    "ParameterKey": "WebAPIContainerPort",
+    "ParameterValue": "8080"
+  }
+]

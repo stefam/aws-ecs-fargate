@@ -1,0 +1,91 @@
+name: Create AWS Infrastructure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Infrastructure to AWS
+    runs-on: ubuntu-latest
+    env:
+      STACK_PREFIX: AwsExpert
+      STACK_PARAMS_PATH: "file://${{ github.workspace }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        id: credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy Network
+        id: network
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name: ${{ env.STACK_PREFIX }}-Network
+          template: infra/vpc-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ env.STACK_PARAMS_PATH }}/infra/vpc-params.json
+
+      - name: Deploy Load Balancer
+        id: load-balancer
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name: ${{ env.STACK_PREFIX }}-LoadBalancer
+          template: infra/alb-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ env.STACK_PARAMS_PATH }}/infra/alb-params.json
+
+      - name: Deploy Roles
+        id: roles
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name: ${{ env.STACK_PREFIX }}-Roles
+          template: infra/iam-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ env.STACK_PARAMS_PATH }}/infra/iam-params.json
+          capabilities: "CAPABILITY_NAMED_IAM"
+
+      - name: Deploy Container Registry
+        id: container-registry
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name: ${{ env.STACK_PREFIX }}-ContainerRegistry
+          template: infra/ecr-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ env.STACK_PARAMS_PATH }}/infra/ecr-params.json
+#
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push WebAPI image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: webapi
+          IMAGE_TAG: latest
+        run: |
+          docker build -f ./web.api/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Build, tag, and push WebUI image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: webui
+          IMAGE_TAG: latest
+        run: |
+          docker build -f ./web.ui/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy ECS Service
+        id: ecs
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name: ${{ env.STACK_PREFIX }}-EcsService
+          template: infra/ecs-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ env.STACK_PARAMS_PATH }}/infra/ecs-params.json

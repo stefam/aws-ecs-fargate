@@ -1,0 +1,39 @@
+Description: Template for the creation of the ECS IAM roles
+
+Parameters:
+  ServiceName:
+    Type: String
+
+Resources:
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", [!Ref ServiceName, ExecutionRole]]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", [!Ref ServiceName, TaskRole]]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+
+Outputs:
+  ExecutionRole:
+    Description: A reference to the created ExecutionRole
+    Value: !Ref ExecutionRole
+
+  TaskRole:
+    Description: A reference to the created TaskRole
+    Value: !Ref TaskRole

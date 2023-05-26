@@ -1,0 +1,28 @@
+Description: Elastic Container Registory repository using Cloudformation
+
+Parameters:
+  WebUIRepoName:
+    Type: String
+
+  WebAPIRepoName:
+    Type: String
+
+Resources:
+  ECRWebUI:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref WebUIRepoName
+
+  ECRWebAPI:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref WebAPIRepoName
+
+Outputs:
+  ECRWebUI:
+    Description: A reference to the created ECRWebUI
+    Value: !Ref ECRWebUI
+
+  ECRWebAPI:
+    Description: A reference to the created ECRWebAPI
+    Value: !Ref ECRWebAPI

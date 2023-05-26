@@ -1,0 +1,91 @@
+Description: A template for the creation of a Load Balancer
+
+Parameters:
+  ServiceName:
+    Type: String
+
+  LoadBalancerPort:
+    Type: Number
+
+  TargetGroupPort:
+    Type: Number
+
+  HealthCheckPath:
+    Type: String
+
+Resources:
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        !Join ["-", [!Ref ServiceName, LoadBalancerSecurityGroup]]
+      VpcId:
+        Fn::ImportValue: !Sub "${ServiceName}-Network-VPCID"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref LoadBalancerPort
+          ToPort: !Ref LoadBalancerPort
+          CidrIp: 0.0.0.0/0
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: !Ref HealthCheckPath
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 2
+      HealthyThresholdCount: 2
+      Name: !Join ["-", [!Ref ServiceName, TargetGroup]]
+      Port: !Ref TargetGroupPort
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
+      TargetType: ip
+      VpcId:
+        Fn::ImportValue: !Sub "${ServiceName}-Network-VPCID"
+
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: !Ref LoadBalancerPort
+      Protocol: HTTP
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: 60
+      Name: !Join ["-", [!Ref ServiceName, LoadBalancer]]
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      Subnets:
+        - Fn::ImportValue: !Sub "${ServiceName}-Network-PUBSNET1"
+        - Fn::ImportValue: !Sub "${ServiceName}-Network-PUBSNET2"
+
+Outputs:
+  LoadBalancerSecurityGroup:
+    Description: A reference to the created LoadBalancerSecurityGroup
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: !Sub "${AWS::StackName}-SGID"
+
+  TargetGroup:
+    Description: A reference to the created TargetGroup
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Sub "${AWS::StackName}-TargetGroupArn"
+
+  ListenerHTTPS:
+    Description: A reference to the created ListenerHTTPS
+    Value: !Ref ListenerHTTPS
+
+  LoadBalancer:
+    Description: A reference to the created LoadBalancer
+    Value: !Ref LoadBalancer

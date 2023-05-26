@@ -1,0 +1,128 @@
+Description: An example CloudFormation template for Fargate.
+
+Parameters:
+  ServiceName:
+    Type: String
+
+  WebUIContainerName:
+    Type: String
+
+  WebUIImage:
+    Type: String
+
+  WebUIContainerPort:
+    Type: Number
+
+  WebAPIImage:
+    Type: String
+
+  WebAPIContainerPort:
+    Type: Number
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Join ["-", [!Ref ServiceName, Cluster]]
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn:
+      - WebUiLogGroup
+      - WebApiLogGroup
+    Properties:
+      Family: !Join ["-", [!Ref ServiceName, TaskDefinition]]
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 512
+      Memory: 1GB
+      ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/${ServiceName}-ExecutionRole"
+      TaskRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/${ServiceName}-TaskRole"
+      ContainerDefinitions:
+        - Name: !Join ["-", [!Ref ServiceName, webui]]
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebUIImage}"
+          PortMappings:
+            - ContainerPort: !Ref WebUIContainerPort
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref WebUiLogGroup
+              awslogs-stream-prefix: ecs
+        - Name: !Join ["-", [!Ref ServiceName, webapi]]
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebAPIImage}"
+          PortMappings:
+            - ContainerPort: !Ref WebAPIContainerPort
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref WebApiLogGroup
+              awslogs-stream-prefix: ecs
+
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join ["-", [!Ref ServiceName, ContainerSecurityGroup]]
+      VpcId:
+        Fn::ImportValue: !Sub "${ServiceName}-Network-VPCID"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref WebUIContainerPort
+          ToPort: !Ref WebUIContainerPort
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub "${ServiceName}-LoadBalancer-SGID"
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Join ["-", [!Ref ServiceName, Service]]
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: 1
+      HealthCheckGracePeriodSeconds: 30
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - Fn::ImportValue: !Sub "${ServiceName}-Network-PVTSNET1"
+            - Fn::ImportValue: !Sub "${ServiceName}-Network-PVTSNET2"
+          SecurityGroups:
+            - !Ref ContainerSecurityGroup
+      LoadBalancers:
+        - ContainerName: !Join ["-", [!Ref ServiceName, !Ref WebUIContainerName]]
+          ContainerPort: !Ref WebUIContainerPort
+          TargetGroupArn:
+            Fn::ImportValue: !Sub "${ServiceName}-LoadBalancer-TargetGroupArn"
+
+  WebUiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${ServiceName}-WebUI"
+
+  WebApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${ServiceName}-WebAPI"
+
+Outputs:
+  Cluster:
+    Description: A reference to the created Cluster
+    Value: !Ref Cluster
+
+  TaskDefinition:
+    Description: A reference to the created TaskDefinition
+    Value: !Ref TaskDefinition
+
+  ContainerSecurityGroup:
+    Description: A reference to the created ContainerSecurityGroup
+    Value: !Ref ContainerSecurityGroup
+
+  Service:
+    Description: A reference to the created Service
+    Value: !Ref Service

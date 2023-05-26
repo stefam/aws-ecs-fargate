@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "AwsExpert"
+  },
+  {
+    "ParameterKey": "LoadBalancerPort",
+    "ParameterValue": "80"
+  },
+  {
+    "ParameterKey": "TargetGroupPort",
+    "ParameterValue": "80"
+  },
+  {
+    "ParameterKey": "HealthCheckPath",
+    "ParameterValue": "/"
+  }
+]
