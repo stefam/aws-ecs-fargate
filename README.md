@@ -1,7 +1,7 @@
 # Introduction
 This project aims to help you to quickly get started with a .NET Core client-server application on AWS ECS Fargate platform behind a public Application Load Balancer in its own private subnet. The infrastructure creation is automated through GitHub Actions so with a little configuration and a single click you can create the whole infrastructure on your AWS account.
 
-Note: .NET Core is not a limitation. As you will see by using containers you can develop your application using the framework of your preference
+Note: .NET Core is not a limitation. As you will see by using containers you can develop your application using the framework of your preference.
 
 Below we will see a few steps you need to follow to get your environment up and running.
 
