@@ -49,4 +49,6 @@ Now you should have all setup to start creating your infrastructure:
 2. Look for workflow **Create AWS Infrastructure** on left panel
 3. Run this workflow and wait the process to complete
 
-At the end of the workflow you should be able to see the infrastructure created on your AWS Console
+At the end of the workflow you should be able to see the infrastructure created on your AWS Console.
+On the AWS Console navigate to the Application Load Balancer created and and look for DNS Name property.
+You should be able now to open that DNS Url in your browser and see your aplication up and running.
