@@ -1,7 +1,7 @@
 # Introduction
-This project aims to help you to quickly get started with a .NET Core client-server application on AWS ECS Fargate platform behind a public Application Load Balancer in its own private subnet. The infrastructure creation is automated through GitHub Actions so with a little configuration and a single click you can create the whole infrastructure on your AWS account.
+This project aims to help you to quickly get started with a containerized client-server application on AWS ECS Fargate platform behind a public Application Load Balancer. The infrastructure creation is automated through GitHub Actions so with a little configuration and a single click you can create the whole infrastructure on your AWS account.
 
-Note: .NET Core is not a limitation. As you will see by using containers you can develop your application using the framework of your preference.
+In this example we use .NET 6, but as we make use of containers you can develop your application using the framework of your preference.
 
 Below we will see a few steps you need to follow to get your environment up and running.
 
@@ -14,7 +14,6 @@ Below we will see a few steps you need to follow to get your environment up and 
 Create a new IAM User called GitHubActionsUser and add the following AWS Managed policies:
 - AmazonEC2ContainerRegistryFullAccess
 - AmazonECS_FullAccess
-- AmazonSSMFullAccess
 - AmazonVPCFullAccess
 - AWSCloudFormationFullAccess
 - ElasticLoadBalancingFullAccess
@@ -31,7 +30,7 @@ Under the IAM User page for the user you just created:
 7. The access key and secret will be displayed on the page. Keep them in a safe place. We will need them soon
 
 ## Create AWS InfraStructure
-### 1. Create Secrets
+### 1. Create GitHub Secrets
 We will need to log in to AWS from GitHub securely. For that we can create secrets to store sensitive information:
 1. Go to your GitHub account
 2. Navigate to your repository
@@ -43,7 +42,7 @@ We will need to log in to AWS from GitHub securely. For that we can create secre
 8. Create one secret named AWS_SECRET_ACCESS_KEY and paste the value of the Secret Access Key we created on AWS Console
 9. Create one secret named AWS_REGION with the region id of your AWS account where you want to create the resources
 
-### 2. Run GitHub Action to Create Infra
+### 2. Run GitHub Action to Create the Infrastructure
 Now you should have all setup to start creating your infrastructure:
 1. On your GitHub Repository navigate to **Actions** tab
 2. Look for workflow **Create AWS Infrastructure** on left panel
