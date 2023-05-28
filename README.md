@@ -3,7 +3,11 @@ This project aims to help you to quickly get started with a containerized client
 
 In this example we use .NET 6, but as we make use of containers you can develop your application using the framework of your preference.
 
-Below we will see a few steps you need to follow to get your environment up and running.
+At the end o the steps below we will have the following infrastructure in place for your project:
+
+![aws-ecs-fargate-diagram](https://github.com/stefam/aws-ecs-fargate/assets/12499171/5ea61909-c522-4687-b227-65fdc5620434)
+
+Let's get started.
 
 ## Create AWS User for GitHub
 
@@ -48,6 +52,6 @@ Now you should have all setup to start creating your infrastructure:
 2. Look for workflow **Create AWS Infrastructure** on left panel
 3. Run this workflow and wait the process to complete
 
-At the end of the workflow you should be able to see the infrastructure created on your AWS Console.
+When the workflow finish you should be able to see the infrastructure created on your AWS Console.
 On the AWS Console navigate to the Application Load Balancer created and and look for DNS Name property.
 You should be able now to open that DNS Url in your browser and see your aplication up and running.
