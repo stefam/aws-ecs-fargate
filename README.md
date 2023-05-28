@@ -3,7 +3,7 @@ This project aims to help you to quickly get started with a containerized client
 
 In this example we use .NET 6, but as we make use of containers you can develop your application using the framework of your preference.
 
-At the end o the steps below we will have the following infrastructure in place for your project:
+At the end of the steps below we will have the following infrastructure in place for your project:
 
 ![aws-ecs-fargate-diagram](https://github.com/stefam/aws-ecs-fargate/assets/12499171/5ea61909-c522-4687-b227-65fdc5620434)
 
