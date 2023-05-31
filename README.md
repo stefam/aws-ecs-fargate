@@ -5,7 +5,7 @@ In this example we use .NET 6, but as we make use of containers you can develop 
 
 At the end of the steps below we will have the following infrastructure in place for your project:
 
-![aws-ecs-fargate-diagram](https://github.com/stefam/aws-ecs-fargate/assets/12499171/5ea61909-c522-4687-b227-65fdc5620434)
+![aws-ecs-fargate-diagram](https://github.com/stefam/aws-ecs-fargate/assets/12499171/f5b6a301-6f59-4596-a200-635c177967f7)
 
 Let's get started.
 
